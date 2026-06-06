@@ -133,6 +133,7 @@ LogicDepth
 Delay
 Power
 ```
+---
 
 # Results
 
