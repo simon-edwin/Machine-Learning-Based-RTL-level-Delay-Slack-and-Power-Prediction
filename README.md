@@ -189,24 +189,6 @@ Timing Status    : MET
 
 ---
 
-## Repository Structure
-
-```text
-RTL-Performance-Prediction-ML/
-│
-├── dataset/
-├── rtl_designs/
-├── synthesis/
-├── feature_extraction/
-├── ml_model/
-├── results/
-├── docs/
-├── README.md
-└── requirements.txt
-```
-
----
-
 ## Applications
 
 - Early timing estimation
