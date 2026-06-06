@@ -1,0 +1,147 @@
+Project Codes
+Codes used for YOSYS Synthesis
+Flattening :-
+yosys -p "
+read_verilog $file.v;
+hierarchy -check -top $file;
+proc; opt;
+fsm; opt;
+memory; opt;
+techmap; opt;
+flatten; opt;
+synth; opt;
+write_json $file_flat_netlist.json;
+write_verilog $file_flat_netlist.v
+
+Making a tcl file:-
+read_liberty sky130.lib
+read_verilog $file.v
+link_design $file
+create_clock -name clk -period 10
+set_input_delay 0 -clock clk [all_inputs]
+set_output_delay 0 -clock clk [all_outputs]
+report_checks -from [all_inputs] -to [all_outputs] -path_delay max
+
+Making STA file :-
+yosys -p "
+read_verilog $file.v;
+synth -top $file;
+dfflibmap -liberty sky130.lib;
+abc -liberty sky130.lib;
+clean;
+write_verilog $file_sta.v
+exit
+~/OpenSTA/build/sta sta_$file.tcl
+
+Codes used in COLAB
+from google.colab import files
+uploaded = files.upload()
+
+import pandas as pd
+df = pd.read_csv("final_dataset.csv")
+df.head()
+
+df["Power"] = (
+0.0005 * df["GateCount"] +
+0.0002 * df["WireCount"] +
+0.05 * df["AvgFanout"]
+)
+df.head()
+
+# Inputs (features)
+X = df.drop(columns=["Design", "Delay", "Power"])
+# Targets
+y_delay = df["Delay"]
+y_power = df["Power"]
+
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_delay_train, y_delay_test = train_test_split(
+X, y_delay, test_size=0.2, random_state=42
+)
+# Align power using same indices
+y_power_train = y_power.loc[y_delay_train.index]
+y_power_test = y_power.loc[y_delay_test.index]
+from sklearn.ensemble import RandomForestRegressor
+model_delay = RandomForestRegressor(n_estimators=100, random_state=42)
+model_delay.fit(X_train, y_delay_train)
+y_delay_pred = model_delay.predict(X_test)
+
+from sklearn.metrics import mean_absolute_error, r2_score
+print("---- DELAY MODEL ----")
+print("MAE:", mean_absolute_error(y_delay_test, y_delay_pred))
+print("R2 Score:", r2_score(y_delay_test, y_delay_pred))
+
+model_power = RandomForestRegressor(n_estimators=100, random_state=42)
+model_power.fit(X_train, y_power_train)
+y_power_pred = model_power.predict(X_test)
+
+print("\n---- POWER MODEL ----")
+print("MAE:", mean_absolute_error(y_power_test, y_power_pred))
+print("R2 Score:", r2_score(y_power_test, y_power_pred))
+
+results = pd.DataFrame({
+"Actual Delay": y_delay_test.values,
+"Predicted Delay": y_delay_pred,
+"Actual Power": y_power_test.values,
+"Predicted Power": y_power_pred,
+"Slack": slack
+})
+results.head()
+
+import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
+plt.figure(figsize=(6,6))
+plt.scatter(y_delay_test, y_delay_pred)
+plt.xlabel("Actual Delay")
+plt.ylabel("Predicted Delay")
+plt.title("Delay Prediction")
+plt.grid()
+plt.show()
+
+plt.figure(figsize=(6,6))
+plt.scatter(y_power_test, y_power_pred)
+plt.xlabel("Actual Power")
+plt.ylabel("Predicted Power")
+plt.title("Power Prediction")
+plt.grid()
+plt.show()
+
+from sklearn.tree import plot_tree
+import matplotlib.pyplot as plt
+# Select one tree from the forest
+tree = model_delay.estimators_[0]
+plt.figure(figsize=(20,10))
+plot_tree(
+tree,
+feature_names=X.columns,
+filled=True,
+fontsize=8
+)
+plt.title("Random Forest - Single Decision Tree")
+plt.show()
+
+Testing The Model
+import pandas as pd
+# Define required time (clock)
+required_time = 10
+# New input (same feature format as training)
+new_data = pd.DataFrame([{
+"GateCount": 200,
+"WireCount": 180,
+"InputBits": 20,
+"OutputBits": 10,
+"AvgFanout": 2.7,
+"MaxFanout": 8,
+"LogicDepth": 15
+}])
+# Predict Delay
+predicted_delay = model_delay.predict(new_data)[0]
+# Compute Slack
+predicted_slack = required_time - predicted_delay
+# Predict Power
+predicted_power = model_power.predict(new_data)[0]
+# Output
+print(f"Predicted Delay : {predicted_delay:.2f} ns")
+print(f"Predicted Slack : {predicted_slack:.2f} ns")
+print(f"Predicted Power : {predicted_power:.4f} units")
+print(f"Timing Status : {'MET' if predicted_slack >= 0 else 'VIOLATED'}")
