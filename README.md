@@ -20,9 +20,9 @@ The proposed framework enables rapid performance estimation without requiring re
 
 ---
 
-# Methodology
+## Methodology
 
-## 1. RTL Design Preparation
+### 1. RTL Design Preparation
 
 A diverse set of combinational circuits was developed with multiple bit-width configurations:
 
@@ -41,7 +41,7 @@ Bit-widths considered:
 
 ---
 
-## 2. Logic Synthesis
+### 2. Logic Synthesis
 
 RTL designs were synthesized using **Yosys** to generate flattened gate-level netlists.
 
@@ -52,7 +52,7 @@ Outputs generated:
 
 ---
 
-## 3. Structural Feature Extraction
+### 3. Structural Feature Extraction
 
 Automated Python scripts were used to extract timing-relevant structural features:
 
@@ -68,7 +68,7 @@ Automated Python scripts were used to extract timing-relevant structural feature
 
 ---
 
-## 4. Timing Analysis
+### 4. Timing Analysis
 
 Static Timing Analysis (STA) was performed using **OpenSTA**.
 
@@ -86,7 +86,7 @@ Slack = Required Time − Delay
 
 ---
 
-## 5. Power Estimation
+### 5. Power Estimation
 
 A structural power model was used to estimate switching-dominated dynamic power based on:
 
@@ -98,7 +98,7 @@ The generated power values were used as targets for machine learning training.
 
 ---
 
-## 6. Machine Learning Model
+### 6. Machine Learning Model
 
 A **Random Forest Regressor** was trained using the extracted structural features.
 
@@ -111,11 +111,11 @@ Timing slack is computed from the predicted delay.
 
 ---
 
-# Dataset
+## Dataset
 
 The dataset consists of synthesized RTL designs from multiple architectures and bit-widths.
 
-## Input Features
+### Input Features
 
 ```text
 GateCount
@@ -127,21 +127,24 @@ MaxFanout
 LogicDepth
 ```
 
-## Target Variables
+### Target Variables
 
 ```text
 Delay
 Power
 ```
+
 ---
 
-# Results
+## Results
 
-## Delay Prediction
+### Delay Prediction
+
 - R² Score: 0.989
 - Mean Absolute Error (MAE): 1.13 ns
 
-## Power Prediction
+### Power Prediction
+
 - R² Score: 0.992
 - Mean Absolute Error (MAE): 0.096
 
@@ -149,38 +152,44 @@ The results demonstrate a strong correlation between structural RTL features and
 
 ---
 
-# Example Prediction
+## Example Prediction
 
 ```python
 required_time = 10
+
 Predicted Delay  : 7.84 ns
 Predicted Slack  : 2.16 ns
 Predicted Power  : 3.52
 Timing Status    : MET
 ```
 
-# Tools and Technologies
+---
 
-## Hardware Design
+## Tools and Technologies
+
+### Hardware Design
+
 - Verilog HDL
 - Yosys
 - OpenSTA
 
-## Machine Learning
+### Machine Learning
+
 - Python
 - Pandas
 - NumPy
 - Scikit-Learn
 - Random Forest Regression
 
-## Development Environment
+### Development Environment
+
 - Ubuntu Linux
 - Google Colab
 - Jupyter Notebook
 
 ---
 
-# Repository Structure
+## Repository Structure
 
 ```text
 RTL-Performance-Prediction-ML/
@@ -196,7 +205,9 @@ RTL-Performance-Prediction-ML/
 └── requirements.txt
 ```
 
-# Applications
+---
+
+## Applications
 
 - Early timing estimation
 - RTL-level design exploration
@@ -204,14 +215,20 @@ RTL-Performance-Prediction-ML/
 - ML-assisted Electronic Design Automation (EDA)
 - Performance-aware RTL optimization
 
-# Future Work
+---
+
+## Future Work
+
 - Incorporate interconnect parasitics and routing effects.
 - Support process-voltage-temperature (PVT) variations.
 - Explore Graph Neural Networks (GNNs) and boosting methods.
 - Extend the framework to sequential circuits.
 - Integrate into automated CAD workflows.
 
-# Authors
+---
+
+## Authors
+
 Developed as part of an M.Tech project on Machine Learning Assisted VLSI Design Automation.
 
 ---
